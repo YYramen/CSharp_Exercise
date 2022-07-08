@@ -1,81 +1,128 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
-public class MineSweeper : MonoBehaviour, IPointerClickHandler
+public class MineSweeper : MonoBehaviour
 {
-    [Header("セルの個数")]
-    [SerializeField, Tooltip("行")] int _rows = 0;
-    [SerializeField, Tooltip("列")] int _columns = 0;
+    [SerializeField]
+    private int _rows = 1;
 
-    [Header("セルの設定")]
-    [SerializeField, Tooltip("セルのプレハブ")] Cell _cellPrefab;
-    [SerializeField, Tooltip("地雷の数")] int _mineCount = 1;
+    [SerializeField]
+    private int _columns = 1;
 
+    [SerializeField]
+    private int _mineCount = 1;
 
-    [SerializeField, Tooltip(" GridLayoutGroup 参照用")] GridLayoutGroup _layout;
-    [Tooltip("セルの二重配列")] Cell[,] _cells;
+    [SerializeField]
+    private GridLayoutGroup _gridLayoutGroup = null;
+
+    [SerializeField]
+    private Cell _cellPrefab = null;
 
     private void Start()
     {
-        SetUp();
+        _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
+        _gridLayoutGroup.constraintCount = _columns;
 
-        GenerateMines();
-    }
-
-    /// <summary>
-    /// セルを配置、二重配列の中にセルを格納。
-    /// </summary>
-    private void SetUp()
-    {
-        _layout.constraintCount = _columns;
-        _cells = new Cell[_rows, _columns];
-
+        var cells = new Cell[_rows, _columns];
+        var parent = _gridLayoutGroup.transform;
         for (var r = 0; r < _rows; r++)
         {
             for (var c = 0; c < _columns; c++)
             {
-                var cell = Instantiate(_cellPrefab, _layout.transform);
-                _cells[r, c] = cell;
+                var cell = Instantiate(_cellPrefab);
+                cell.transform.SetParent(parent);
+                cells[r, c] = cell;
+            }
+        }
+
+        // セルを初期化して地雷をランダムに設置する。
+        ClearCells(cells, _mineCount);
+
+        // すべてのセルを探索する2重ループ
+        for (var r = 0; r < _rows; r++)
+        {
+            for (var c = 0; c < _columns; c++)
+            {
+                // このセルの周囲8マスの地雷を数える
+                var cell = cells[r, c];
+                cell.CellState = GetMineCount(cells, r, c);
             }
         }
     }
 
     /// <summary>
-    /// _mineCount分地雷を置く。
+    /// 指定した2次元配列のセルをすべて初期化して、指定数の地雷をランダムに配置する。
+    /// 地雷数がセル数より多い場合、すべてのセルを地雷で埋める。
     /// </summary>
-    private void GenerateMines()
+    /// <param name="cells">セルの2次元配列。</param>
+    /// <param name="mineCount">設置する地雷数。</param>
+    private void ClearCells(Cell[,] cells, int mineCount)
     {
-        for (var i = 0; i <= _mineCount - 1; i++)
-        {
-            var randomRows = Random.Range(0, _rows);
-            var randomColumns = Random.Range(0, _columns);
-            var cell = _cells[randomRows, randomColumns];
-            cell.CellState = CellState.Mine;
+        // すべてのセルの状態を None で初期化する
+        foreach (var cell in cells) { cell.CellState = CellState.None; }
 
-            _cells[randomRows + 1, randomColumns] = 
+        // 設定された地雷数がセル数より多い場合
+        if (mineCount > cells.Length)
+        {
+            // 地雷数を強制的にセル数と一致させる
+            mineCount = cells.Length;
+        }
+
+        var rows = cells.GetLength(0);
+        var columns = cells.GetLength(1);
+
+        // 設置したい地雷数（mineCount）だけ繰り返す
+        for (var i = 0; i < mineCount;)
+        {
+            // ランダムな行番号 r、列番号 c を取る
+            var r = Random.Range(0, rows);
+            var c = Random.Range(0, columns);
+
+            // ランダムに選ばれたセル
+            var cell = cells[r, c];
+            if (cell.CellState != CellState.Mine)
+            {
+                i++; // カウンターをインクリメントする
+                cell.CellState = CellState.Mine;
+            }
+            else { Debug.Log("地雷再抽選"); }
         }
     }
 
     /// <summary>
-    /// クリックされたセルの周りを調べる
+    /// 指定した2次元配列の r 行 c 列にあるセルの周囲8近傍の地雷数を取得する。
+    /// r 行 c 列のセルが地雷なら <see cref="CellState.Mine"/> を返す。
     /// </summary>
-    /// <param name="data"></param>
-    public void OnPointerClick(PointerEventData data)
+    /// <param name="cells">セルの2次元配列。</param>
+    /// <param name="r">行番号。</param>
+    /// <param name="c">列番号。</param>
+    /// <returns>セルの周囲8近傍の地雷数。</returns>
+    private CellState GetMineCount(Cell[,] cells, int r, int c)
     {
-        var cell = data.pointerCurrentRaycast.gameObject.GetComponent<Cell>();
-
-        for (var r = 0; r < _rows; r++)
+        var cell = cells[r, c];
+        if (cell.CellState == CellState.Mine)
         {
-            for (var c = 0; c < _columns; c++)
-            {
-                if(cell == _cells[r, c])
-                {
-                    Debug.Log($"Clicked : {r}, {c}");
-                }
-            }
+            return CellState.Mine;  // 地雷セルは無視する
         }
+
+        var count = 0;
+
+        // セルの周囲の地雷数を数える処理
+        if (r - 1 >= 0)
+        {
+            if (c - 1 >= 0 && cells[r - 1, c - 1].CellState == CellState.Mine) { count++; }
+            if (cells[r - 1, c].CellState == CellState.Mine) { count++; }
+            if (c + 1 < _columns && cells[r - 1, c + 1].CellState == CellState.Mine) { count++; }
+        }
+        if (c - 1 >= 0 && cells[r, c - 1].CellState == CellState.Mine) { count++; }
+        if (c + 1 < _columns && cells[r, c + 1].CellState == CellState.Mine) { count++; }
+        if (r + 1 < _rows)
+        {
+            if (c - 1 >= 0 && cells[r + 1, c - 1].CellState == CellState.Mine) { count++; }
+            if (cells[r + 1, c].CellState == CellState.Mine) { count++; }
+            if (c + 1 < _columns && cells[r + 1, c + 1].CellState == CellState.Mine) { count++; }
+        }
+
+        return (CellState)count; // 地雷数を CellState に変換
     }
 }

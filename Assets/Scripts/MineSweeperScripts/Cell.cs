@@ -55,7 +55,7 @@ public class Cell : MonoBehaviour
         else if (_cellState == CellState.Mine)
         {
             _view.color = Color.red;
-            _view.text = "îö";
+            _view.text = "Åú";
         }
         else
         {
