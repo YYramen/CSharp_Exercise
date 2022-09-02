@@ -1,7 +1,11 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
+using System.Collections.Generic;
+using System.Collections;
 
-public class MineSweeper : MonoBehaviour
+public class MineSweeper : MonoBehaviour, IPointerClickHandler
 {
     [SerializeField]
     private int _rows = 1;
@@ -18,8 +22,19 @@ public class MineSweeper : MonoBehaviour
     [SerializeField]
     private Cell _cellPrefab = null;
 
+    [SerializeField]
+    private Text _infoText;
+
+    private bool _isFirstCell = true;
+
+    [SerializeField]
+    private Image _fadeImg = null;
+    float _alpha = 0.0f;
+    float _fadeSpeed = 0.003f;
+
     private void Start()
     {
+        StartCoroutine(FadeIn());
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         _gridLayoutGroup.constraintCount = _columns;
 
@@ -48,6 +63,8 @@ public class MineSweeper : MonoBehaviour
                 cell.CellState = GetMineCount(cells, r, c);
             }
         }
+
+        _infoText.color = Color.clear;
     }
 
     /// <summary>
@@ -124,5 +141,80 @@ public class MineSweeper : MonoBehaviour
         }
 
         return (CellState)count; // 地雷数を CellState に変換
+    }
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        var obj = eventData.pointerCurrentRaycast.gameObject;
+        Debug.Log($"OnPointerClick: {obj.name}");
+
+        var cell = obj.GetComponent<Cell>();
+        if (cell != null)
+        {
+            // セルがクリックされた
+
+            if (_isFirstCell)   //最初に開いたセルだった場合
+            {
+                if(cell.CellState == CellState.Mine)    //最初に開いたセルが地雷だった場合
+                {
+                    Debug.Log("最初に開いたセルが地雷だった");
+                    _infoText.text = ("最初に開いたセルが地雷だったため、ゲームを再読み込みしています");
+                    StartCoroutine(FadeOut());
+                }
+                _isFirstCell = false;
+            }
+            cell.IsOpen = true;
+            Debug.Log($"Cell IsOpen: {cell.IsOpen}");
+            Debug.Log($"Selected Cell's CellState: {cell.CellState}");
+            if (cell.CellState == CellState.Mine)
+            {
+                _infoText.color = Color.white;
+            }
+        }
+    }
+
+    IEnumerator FadeOut()
+    {
+        Color c = _fadeImg.color;
+        c.a = _alpha;
+        _fadeImg.color = c;
+        while (true)
+        {
+            yield return null;
+            c.a += _fadeSpeed;
+            _fadeImg.color = c;
+            _fadeImg.raycastTarget = true;
+
+            if (c.a >= 1)
+            {
+                c.a = 1f;
+                _fadeImg.color = c;
+                SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+                break;
+            }
+        }
+    }
+
+    IEnumerator FadeIn()
+    {
+        Color c = _fadeImg.color;
+        c.a = 1;
+        _fadeImg.color = c;
+        
+        while (true)
+        {
+            yield return null;
+            c.a -= _fadeSpeed;
+            _fadeImg.color = c;
+            _fadeImg.raycastTarget = true;
+
+            if (c.a <= 0)
+            {
+                c.a = 0f;
+                _fadeImg.color = c;
+                _fadeImg.raycastTarget = false;
+                break;
+            }
+        }
     }
 }

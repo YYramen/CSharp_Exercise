@@ -21,9 +21,26 @@ public enum CellState
 
 public class Cell : MonoBehaviour
 {
-    [SerializeField] Text _view = default;
+    [SerializeField]
+    private Text _view = default;
 
-    [SerializeField] CellState _cellState = CellState.None;
+    [SerializeField]
+    private CellState _cellState = CellState.None;
+
+    [SerializeField]
+    private Image _coverImg = null;
+
+    private bool _isOpen = false;
+    public bool IsOpen
+    {
+        get => _isOpen;
+        set
+        {
+            _isOpen = value;
+            OnIsOpenChanged();
+        }
+    }
+
     public CellState CellState
     {
         get => _cellState;
@@ -33,15 +50,17 @@ public class Cell : MonoBehaviour
             CellStateChanged();
         }
     }
-
-    //private void Start()
-    //{
-    //    CellStateChanged();
-    //}
+    
+    private void OnIsOpenChanged()
+    {
+        if(_coverImg == null) { return; }
+        _coverImg.gameObject.SetActive(!_isOpen);
+    }
 
     private void OnValidate()
     {
         CellStateChanged();
+        OnIsOpenChanged();
     }
 
     private void CellStateChanged()
