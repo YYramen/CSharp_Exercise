@@ -4,8 +4,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using System.Collections;
+using MineSweeper;
 
-public class MineSweeper : MonoBehaviour, IPointerClickHandler
+public class MineSweeperManager : MonoBehaviour, IPointerClickHandler
 {
     private Cell[,] _cells;
 
@@ -82,7 +83,6 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
                 var cell = Instantiate(_cellPrefab);
                 cell.transform.SetParent(parent);
                 _cells[r, c] = cell;
-
             }
         }
 

@@ -18,76 +18,79 @@ public enum CellState
 
     Mine = -1,
 }
-
-public class Cell : MonoBehaviour
+namespace MineSweeper
 {
-    [SerializeField]
-    private Text _view = default;
-
-    [SerializeField]
-    private CellState _cellState = CellState.None;
-
-    [SerializeField]
-    private Image _coverImg = null;
-
-    private bool _isOpen = false;
-
-    private MineSweeper _ms;
-    public bool IsOpen
+    public class Cell : MonoBehaviour
     {
-        get => _isOpen;
-        set
+        [SerializeField]
+        private Text _view = default;
+
+        [SerializeField]
+        private CellState _cellState = CellState.None;
+
+        [SerializeField]
+        private Image _coverImg = null;
+
+        private bool _isOpen = false;
+
+        private MineSweeperManager _ms;
+        public bool IsOpen
         {
-            _isOpen = value;
-            OnIsOpenChanged();
+            get => _isOpen;
+            set
+            {
+                _isOpen = value;
+                OnIsOpenChanged();
+            }
         }
-    }
 
-    public CellState CellState
-    {
-        get => _cellState;
-        set
+        public CellState CellState
         {
-            _cellState = value;
+            get => _cellState;
+            set
+            {
+                _cellState = value;
+                CellStateChanged();
+            }
+        }
+
+        private void Awake()
+        {
+
+        }
+
+        private void OnIsOpenChanged()
+        {
+            if (_coverImg == null) { return; }
+            _coverImg.gameObject.SetActive(!_isOpen);
+            _ms = GetComponentInParent<MineSweeperManager>();
+            _ms._openCount++;
+        }
+
+        private void OnValidate()
+        {
             CellStateChanged();
         }
-    }
 
-    private void Awake()
-    {
-        
-    }
-
-    private void OnIsOpenChanged()
-    {
-        if(_coverImg == null) { return; }
-        _coverImg.gameObject.SetActive(!_isOpen);
-        _ms = GetComponentInParent<MineSweeper>();
-        _ms._openCount++;
-    }
-
-    private void OnValidate()
-    {
-        CellStateChanged();
-    }
-
-    private void CellStateChanged()
-    {
-        if (_view == null) { return; }
-
-        if (_cellState == CellState.None)
+        private void CellStateChanged()
         {
-            _view.text = "";
-        }
-        else if (_cellState == CellState.Mine)
-        {
-            _view.color = Color.red;
-            _view.text = "Åú";
-        }
-        else
-        {
-            _view.text = ((int)_cellState).ToString();
-            _view.color = Color.green;
+            if (_view == null) { return; }
+
+            if (_cellState == CellState.None)
+            {
+                _view.text = "";
+            }
+            else if (_cellState == CellState.Mine)
+            {
+                _view.color = Color.red;
+                _view.text = "Åú";
+            }
+            else
+            {
+                _view.text = ((int)_cellState).ToString();
+                _view.color = Color.green;
+            }
         }
     }
 }
+
