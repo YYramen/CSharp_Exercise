@@ -7,6 +7,8 @@ using System.Collections;
 
 public class MineSweeper : MonoBehaviour, IPointerClickHandler
 {
+    private Cell[,] _cells;
+
     [SerializeField]
     private int _rows = 1;
 
@@ -34,11 +36,19 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
 
     private void Start()
     {
+        SetUp();
+    }
+
+    /// <summary>
+    /// セルを配置しセルに地雷を配置する
+    /// </summary>
+    private void SetUp()
+    {
         StartCoroutine(FadeIn());
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         _gridLayoutGroup.constraintCount = _columns;
 
-        var cells = new Cell[_rows, _columns];
+        _cells = new Cell[_rows, _columns];
         var parent = _gridLayoutGroup.transform;
         for (var r = 0; r < _rows; r++)
         {
@@ -46,12 +56,12 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
             {
                 var cell = Instantiate(_cellPrefab);
                 cell.transform.SetParent(parent);
-                cells[r, c] = cell;
+                _cells[r, c] = cell;
             }
         }
 
         // セルを初期化して地雷をランダムに設置する。
-        ClearCells(cells, _mineCount);
+        ClearCells(_cells, _mineCount);
 
         // すべてのセルを探索する2重ループ
         for (var r = 0; r < _rows; r++)
@@ -59,8 +69,8 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
             for (var c = 0; c < _columns; c++)
             {
                 // このセルの周囲8マスの地雷を数える
-                var cell = cells[r, c];
-                cell.CellState = GetMineCount(cells, r, c);
+                var cell = _cells[r, c];
+                cell.CellState = GetMineCount(_cells ,r, c);
             }
         }
 
@@ -71,7 +81,7 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
     /// 指定した2次元配列のセルをすべて初期化して、指定数の地雷をランダムに配置する。
     /// 地雷数がセル数より多い場合、すべてのセルを地雷で埋める。
     /// </summary>
-    /// <param name="cells">セルの2次元配列。</param>
+    /// <param name="_cells">セルの2次元配列。</param>
     /// <param name="mineCount">設置する地雷数。</param>
     private void ClearCells(Cell[,] cells, int mineCount)
     {
@@ -110,11 +120,11 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
     /// 指定した2次元配列の r 行 c 列にあるセルの周囲8近傍の地雷数を取得する。
     /// r 行 c 列のセルが地雷なら <see cref="CellState.Mine"/> を返す。
     /// </summary>
-    /// <param name="cells">セルの2次元配列。</param>
+    /// <param name="_cells">セルの2次元配列。</param>
     /// <param name="r">行番号。</param>
     /// <param name="c">列番号。</param>
     /// <returns>セルの周囲8近傍の地雷数。</returns>
-    private CellState GetMineCount(Cell[,] cells, int r, int c)
+    private CellState GetMineCount(Cell[,] cells ,int r, int c)
     {
         var cell = cells[r, c];
         if (cell.CellState == CellState.Mine)
@@ -143,6 +153,10 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
         return (CellState)count; // 地雷数を CellState に変換
     }
 
+    /// <summary>
+    /// クリックされた時の処理
+    /// </summary>
+    /// <param name="eventData">クリックされたセル</param>
     public void OnPointerClick(PointerEventData eventData)
     {
         var obj = eventData.pointerCurrentRaycast.gameObject;
@@ -158,7 +172,7 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
                 if(cell.CellState == CellState.Mine)    //最初に開いたセルが地雷だった場合
                 {
                     Debug.Log("最初に開いたセルが地雷だった");
-                    _infoText.text = ("最初に開いたセルが地雷だったため、ゲームを再読み込みしています");
+                    _infoText.text = ("最初に開いたセルが地雷だったため、ゲームを再スタート");
                     StartCoroutine(FadeOut());
                 }
                 _isFirstCell = false;
@@ -166,11 +180,25 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
             cell.IsOpen = true;
             Debug.Log($"Cell IsOpen: {cell.IsOpen}");
             Debug.Log($"Selected Cell's CellState: {cell.CellState}");
-            if (cell.CellState == CellState.Mine)
+
+            if (cell.CellState == CellState.Mine)   //開いたセルが地雷だった場合
             {
                 _infoText.color = Color.white;
             }
+
+            if(cell.CellState == CellState.None)    //開いたセルのStateがNoneだった場合
+            {
+                
+            }
         }
+    }
+
+    /// <summary>
+    /// 開いたセルのStateがNoneだった場合に呼び出す、自動でセルを展開する処理
+    /// </summary>
+    private void AutoOpen(Cell target)
+    {
+        
     }
 
     IEnumerator FadeOut()

@@ -11,8 +11,7 @@ public class Sampleweek4test : MonoBehaviour, IPointerClickHandler
     public Image _checkCell;
 
     GameObject[,] _cells;
-    int _selRow = 0;
-    int _selCol = 0;
+    
 
     private void Start()
     {
