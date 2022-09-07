@@ -31,6 +31,8 @@ public class Cell : MonoBehaviour
     private Image _coverImg = null;
 
     private bool _isOpen = false;
+
+    private MineSweeper _ms;
     public bool IsOpen
     {
         get => _isOpen;
@@ -50,17 +52,23 @@ public class Cell : MonoBehaviour
             CellStateChanged();
         }
     }
-    
+
+    private void Awake()
+    {
+        
+    }
+
     private void OnIsOpenChanged()
     {
         if(_coverImg == null) { return; }
         _coverImg.gameObject.SetActive(!_isOpen);
+        _ms = GetComponentInParent<MineSweeper>();
+        _ms._openCount++;
     }
 
     private void OnValidate()
     {
         CellStateChanged();
-        OnIsOpenChanged();
     }
 
     private void CellStateChanged()

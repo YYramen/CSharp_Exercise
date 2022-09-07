@@ -29,6 +29,14 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
 
     private bool _isFirstCell = true;
 
+    public int _openCount = 0;
+
+    private int _clearCount;
+
+    private float _timer = 0;
+    [SerializeField]
+    private Text _timerTxt;
+
     [SerializeField]
     private Image _fadeImg = null;
     float _alpha = 0.0f;
@@ -37,6 +45,23 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
     private void Start()
     {
         SetUp();
+        
+        _clearCount = _rows * _columns - _mineCount;
+    }
+
+    private void Update()
+    {
+        if (_openCount >= _clearCount)
+        {
+            Debug.Log("クリア");
+            _infoText.text = "クリアあああああああん";
+            StartCoroutine("FadeOut");
+        }
+        else
+        {
+            _timer += Time.deltaTime;
+            _timerTxt.text = _timer.ToString();
+        }
     }
 
     /// <summary>
@@ -44,7 +69,7 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void SetUp()
     {
-        StartCoroutine(FadeIn());
+        //StartCoroutine("FadeIn");
         _gridLayoutGroup.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
         _gridLayoutGroup.constraintCount = _columns;
 
@@ -57,6 +82,7 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
                 var cell = Instantiate(_cellPrefab);
                 cell.transform.SetParent(parent);
                 _cells[r, c] = cell;
+
             }
         }
 
@@ -70,7 +96,7 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
             {
                 // このセルの周囲8マスの地雷を数える
                 var cell = _cells[r, c];
-                cell.CellState = GetMineCount(_cells ,r, c);
+                cell.CellState = GetMineCount(_cells, r, c);
             }
         }
 
@@ -124,7 +150,7 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
     /// <param name="r">行番号。</param>
     /// <param name="c">列番号。</param>
     /// <returns>セルの周囲8近傍の地雷数。</returns>
-    private CellState GetMineCount(Cell[,] cells ,int r, int c)
+    private CellState GetMineCount(Cell[,] cells, int r, int c)
     {
         var cell = cells[r, c];
         if (cell.CellState == CellState.Mine)
@@ -169,11 +195,11 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
 
             if (_isFirstCell)   //最初に開いたセルだった場合
             {
-                if(cell.CellState == CellState.Mine)    //最初に開いたセルが地雷だった場合
+                if (cell.CellState == CellState.Mine)    //最初に開いたセルが地雷だった場合
                 {
                     Debug.Log("最初に開いたセルが地雷だった");
                     _infoText.text = ("最初に開いたセルが地雷だったため、ゲームを再スタート");
-                    StartCoroutine(FadeOut());
+                    StartCoroutine("FadeOut");
                 }
                 _isFirstCell = false;
             }
@@ -186,9 +212,10 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
                 _infoText.color = Color.white;
             }
 
-            if(cell.CellState == CellState.None)    //開いたセルのStateがNoneだった場合
+            if (cell.CellState == CellState.None)    //開いたセルのStateがNoneだった場合
             {
-                
+
+                AutoOpen(cell);
             }
         }
     }
@@ -198,7 +225,68 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
     /// </summary>
     private void AutoOpen(Cell target)
     {
-        
+        for (int r = 0; r < _rows; r++)
+        {
+            for (int c = 0; c < _columns; c++)
+            {
+                if (target == _cells[r, c])
+                {
+                    Debug.Log($"{r}{c}");
+                    Check(r, c);
+                }
+
+            }
+        }
+    }
+
+    private void Check(int r, int c)
+    {
+        if (r - 1 >= 0)
+        {
+            if (c - 1 >= 0 && _cells[r - 1, c - 1].CellState != CellState.Mine && !_cells[r - 1, c - 1].IsOpen)
+            {
+                _cells[r - 1, c - 1].IsOpen = true;
+                if (_cells[r - 1, c - 1].CellState == CellState.None) Check(r - 1, c - 1);
+            }
+            if (_cells[r - 1, c].CellState != CellState.Mine && !_cells[r - 1, c].IsOpen)
+            {
+                _cells[r - 1, c].IsOpen = true;
+                if (_cells[r - 1, c].CellState == CellState.None) Check(r - 1, c);
+            }
+            if (c + 1 < _columns && _cells[r - 1, c + 1].CellState != CellState.Mine && !_cells[r - 1, c + 1].IsOpen)
+            {
+                _cells[r - 1, c + 1].IsOpen = true;
+                if (_cells[r - 1, c + 1].CellState == CellState.None) Check(r - 1, c + 1);
+            }
+        }
+        if (c - 1 >= 0 && _cells[r, c - 1].CellState != CellState.Mine && !_cells[r, c - 1].IsOpen)
+        {
+            _cells[r, c - 1].IsOpen = true;
+            if (_cells[r, c - 1].CellState == CellState.None) Check(r, c - 1);
+        }
+        if (c + 1 < _columns && _cells[r, c + 1].CellState != CellState.Mine && !_cells[r, c + 1].IsOpen)
+        {
+            _cells[r, c + 1].IsOpen = true;
+            if (_cells[r, c + 1].CellState == CellState.None) Check(r, c + 1);
+        }
+        if (r + 1 < _rows)
+        {
+            if (c - 1 >= 0 && _cells[r + 1, c - 1].CellState != CellState.Mine && !_cells[r + 1, c - 1].IsOpen)
+            {
+                _cells[r + 1, c - 1].IsOpen = true;
+                if (_cells[r + 1, c - 1].CellState == CellState.None) Check(r + 1, c - 1);
+            }
+            if (_cells[r + 1, c].CellState != CellState.Mine && !_cells[r + 1, c].IsOpen)
+            {
+                _cells[r + 1, c].IsOpen = true;
+                if (_cells[r + 1, c].CellState == CellState.None) Check(r + 1, c);
+            }
+            if (c + 1 < _columns && _cells[r + 1, c + 1].CellState != CellState.Mine && !_cells[r + 1, c + 1].IsOpen)
+            {
+                _cells[r + 1, c + 1].IsOpen = true;
+                if (_cells[r + 1, c + 1].CellState == CellState.None) Check(r + 1, c + 1);
+            }
+        }
     }
 
     IEnumerator FadeOut()
@@ -228,7 +316,7 @@ public class MineSweeper : MonoBehaviour, IPointerClickHandler
         Color c = _fadeImg.color;
         c.a = 1;
         _fadeImg.color = c;
-        
+
         while (true)
         {
             yield return null;
