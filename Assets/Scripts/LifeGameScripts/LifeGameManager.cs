@@ -29,18 +29,33 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
             {
                 for (var c = 0; c < _columns; c++)
                 {
-                    if(CheckCell(r, c)<= 1 || CheckCell(r, c) >= 4)
+                    if (_cells[r, c].CellType == CellType.dead)
                     {
-                        _cells[r, c].CellType = CellType.dead;
-                    }
-                    else
-                    {
-                        if(CheckCell(r, c) == 3)
+                        if (CheckCell(r, c) == 3)
                         {
                             _cells[r, c].CellType = CellType.life;
                         }
                     }
-                    Debug.Log(CheckCell(r, c));
+                }
+            }
+
+            for (var r = 0; r < _rows; r++)
+            {
+                for (var c = 0; c < _columns; c++)
+                {
+                    if (_cells[r, c].CellType == CellType.life)
+                    {
+
+                        if (CheckCell(r, c) == 2 || CheckCell(r, c) == 3)
+                        {
+                            _cells[r, c].CellType = CellType.life;
+                        }
+                        else if (CheckCell(r, c) <= 1 || CheckCell(r, c) >= 4)
+                        {
+                            _cells[r, c].CellType |= CellType.dead;
+                        }
+
+                    }
                 }
             }
         }
@@ -74,7 +89,7 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
     public void ResetGame()
     {
         _isStart = false;
-        foreach(var cell in _cells) { cell.CellType = CellType.dead; }
+        foreach (var cell in _cells) { cell.CellType = CellType.dead; }
     }
 
     /// <summary>
@@ -105,7 +120,7 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
             if (c - 1 >= 0 && _cells[r - 1, c - 1].CellType == CellType.life)
             {
                 countLife++;
-                
+
             }
             if (_cells[r - 1, c].CellType == CellType.life)
             {
@@ -139,11 +154,8 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
                 countLife++;
             }
         }
-
-
+        
         return countLife;
-
-
     }
 
     /// <summary>
