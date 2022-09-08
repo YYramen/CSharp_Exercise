@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311953, g: 0.38074014, b: 0.3587274, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -307,7 +307,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 0, y: 44.03827}
+  m_AnchoredPosition: {x: 0, y: 44.03833}
   m_SizeDelta: {x: 253.8936, y: 80.0766}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &197948408
@@ -353,7 +353,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 197948409}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1016026097}
+        m_TargetAssemblyTypeName: LifeGameManager, Assembly-CSharp
+        m_MethodName: EnableGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &197948409
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -488,7 +500,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!108 &479828244
 Light:
   m_ObjectHideFlags: 0
@@ -707,7 +719,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: -276, y: 44.03827}
+  m_AnchoredPosition: {x: -276, y: 44.03833}
   m_SizeDelta: {x: 253.8936, y: 80.0766}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &664118147
@@ -753,7 +765,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 664118148}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1016026097}
+        m_TargetAssemblyTypeName: LifeGameManager, Assembly-CSharp
+        m_MethodName: ResetGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &664118148
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -853,7 +877,7 @@ MonoBehaviour:
   m_StartCorner: 0
   m_StartAxis: 0
   m_CellSize: {x: 45, y: 45}
-  m_Spacing: {x: 5, y: 5}
+  m_Spacing: {x: 0, y: 0}
   m_Constraint: 1
   m_ConstraintCount: 14
 --- !u!114 &1016026095
@@ -906,8 +930,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 70d0dc15d4b41054fb60615c40cca999, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _rows: 15
-  _columns: 15
+  _rows: 20
+  _columns: 30
   _cellPrefab: {fileID: -7074206710555120000, guid: a6abe2aac485dd84c95b7df58d26e577, type: 3}
   _grid: {fileID: 1016026094}
 --- !u!1 &1428561292
@@ -1031,7 +1055,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0}
   m_AnchorMax: {x: 0.5, y: 0}
-  m_AnchoredPosition: {x: 275, y: 44.03827}
+  m_AnchoredPosition: {x: 275, y: 44.03833}
   m_SizeDelta: {x: 253.8936, y: 80.0766}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1525916783
@@ -1077,7 +1101,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1525916784}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 1016026097}
+        m_TargetAssemblyTypeName: LifeGameManager, Assembly-CSharp
+        m_MethodName: StopGame
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!114 &1525916784
 MonoBehaviour:
   m_ObjectHideFlags: 0

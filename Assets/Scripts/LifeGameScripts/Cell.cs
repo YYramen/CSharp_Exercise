@@ -10,24 +10,31 @@ namespace LifeGame
     {
         Image _cellImage;
         [SerializeField] CellType _cellType = CellType.dead;
-        public CellType CellType  => _cellType;
+
+        public CellType CellType
+        {
+            get => _cellType;
+            set
+            {
+                _cellType = value;
+                OnStateChange();
+            }
+        }
 
         private void Awake()
         {
             _cellImage = GetComponent<Image>();
         }
 
-        public void StateChange()
+        public void OnStateChange()
         {
             if (_cellType == CellType.life)
             {
-                _cellType = CellType.dead;
-                _cellImage.color = Color.white;
+                _cellImage.color = Color.black;
             }
             else if(_cellType == CellType.dead)
             {
-                _cellType = CellType.life;
-                _cellImage.color = Color.black;
+                _cellImage.color = Color.white;
             }
         }
     }
