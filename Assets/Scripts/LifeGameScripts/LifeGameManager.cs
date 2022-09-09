@@ -1,12 +1,12 @@
-using System.Collections;
-using System.Collections.Generic;
+using LifeGame;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
-using LifeGame;
 
 public class LifeGameManager : MonoBehaviour, IPointerClickHandler
 {
+    //TODO: ƒZƒ‹‚Ì¢‘ã‚ğ•Ï‚¦‚éŠ‚ğA’Tõ‚µ‚½‚ç’€Ÿ•Ï‚¦‚é‚Ì‚Å‚Í‚È‚­AˆêÄ‚É•Ï‚¦‚é‚æ‚¤‚É‚·‚é
+
     [SerializeField] int _rows = 0;
     [SerializeField] int _columns = 0;
     Cell[,] _cells;
@@ -35,6 +35,8 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
                         {
                             _cells[r, c].CellType = CellType.life;
                         }
+                        else _cells[r, c].CellType = CellType.dead;
+                        
                     }
                 }
             }
@@ -54,7 +56,6 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
                         {
                             _cells[r, c].CellType |= CellType.dead;
                         }
-
                     }
                 }
             }
@@ -154,7 +155,7 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
                 countLife++;
             }
         }
-        
+
         return countLife;
     }
 

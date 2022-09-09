@@ -1,10 +1,9 @@
+using MineSweeper;
+using System.Collections;
 using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
-using System.Collections.Generic;
-using System.Collections;
-using MineSweeper;
+using UnityEngine.UI;
 
 public class MineSweeperManager : MonoBehaviour, IPointerClickHandler
 {
@@ -33,6 +32,7 @@ public class MineSweeperManager : MonoBehaviour, IPointerClickHandler
     public int _openCount = 0;
 
     private int _clearCount;
+    private bool _isClear = false;
 
     private float _timer = 0;
     [SerializeField]
@@ -46,7 +46,7 @@ public class MineSweeperManager : MonoBehaviour, IPointerClickHandler
     private void Start()
     {
         SetUp();
-        
+
         _clearCount = _rows * _columns - _mineCount;
     }
 
@@ -54,14 +54,16 @@ public class MineSweeperManager : MonoBehaviour, IPointerClickHandler
     {
         if (_openCount >= _clearCount)
         {
+            _isClear = true;
             Debug.Log("クリア");
             _infoText.text = "クリアあああああああん";
+            _infoText.color = Color.white;
             StartCoroutine("FadeOut");
         }
-        else
+        if(!_isClear)
         {
             _timer += Time.deltaTime;
-            _timerTxt.text = _timer.ToString();
+            _timerTxt.text = _timer.ToString("F2");
         }
     }
 
@@ -234,7 +236,6 @@ public class MineSweeperManager : MonoBehaviour, IPointerClickHandler
                     Debug.Log($"{r}{c}");
                     Check(r, c);
                 }
-
             }
         }
     }
