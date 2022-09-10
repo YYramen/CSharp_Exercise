@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -32,7 +30,7 @@ namespace LifeGame
             {
                 _cellImage.color = Color.black;
             }
-            else if(_cellType == CellType.dead)
+            else if (_cellType == CellType.dead)
             {
                 _cellImage.color = Color.white;
             }
