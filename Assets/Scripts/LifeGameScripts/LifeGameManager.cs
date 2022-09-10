@@ -14,6 +14,8 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
     [SerializeField] Cell _cellPrefab;
     [SerializeField] GridLayoutGroup _grid;
 
+    [SerializeField] float _changeSpeed = 0.002f;
+
     bool _isStart = false;
 
     private void Start()
@@ -25,40 +27,54 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
     {
         if (_isStart)
         {
-            for (var r = 0; r < _rows; r++)
+            StartCoroutine("UpdateCell");
+        }
+    }
+
+    /// <summary>
+    /// é¸ÇËÇÃÉZÉãÇí≤Ç◊ÅAÉZÉãÇÃèÛë‘ÇïœÇ¶ÇÈ
+    /// </summary>
+    private Cell[,] ChangeCell()
+    {
+        var cells = new Cell[_rows, _columns];
+
+        for (var r = 0; r < _rows; r++)
+        {
+            for (var c = 0; c < _columns; c++)
             {
-                for (var c = 0; c < _columns; c++)
+                if (_cells[r, c].CellType == CellType.dead)
                 {
-                    if (_cells[r, c].CellType == CellType.dead)
+                    if (CheckCell(r, c) == 3)
                     {
-                        if (CheckCell(r, c) == 3)
-                        {
-                            _cells[r, c].CellType = CellType.life;
-                        }
-                    }
-                }
-            }
-
-            for (var r = 0; r < _rows; r++)
-            {
-                for (var c = 0; c < _columns; c++)
-                {
-                    if (_cells[r, c].CellType == CellType.life)
-                    {
-
-                        if (CheckCell(r, c) == 2 || CheckCell(r, c) == 3)
-                        {
-                            _cells[r, c].CellType = CellType.life;
-                        }
-                        else if (CheckCell(r, c) <= 1 || CheckCell(r, c) >= 4)
-                        {
-                            _cells[r, c].CellType |= CellType.dead;
-                        }
-
+                        _cells[r, c].CellType = CellType.life;
                     }
                 }
             }
         }
+
+        for (var r = 0; r < _rows; r++)
+        {
+            for (var c = 0; c < _columns; c++)
+            {
+                if (_cells[r, c].CellType == CellType.life)
+                {
+
+                    if (CheckCell(r, c) == 2 || CheckCell(r, c) == 3)
+                    {
+                        _cells[r, c].CellType = CellType.life;
+                    }
+                    else if (CheckCell(r, c) <= 1 || CheckCell(r, c) >= 4)
+                    {
+                        _cells[r, c].CellType = CellType.dead;
+                    }
+
+                }
+            }
+        }
+
+        cells = _cells;
+
+        return cells;
     }
 
     /// <summary>
@@ -154,7 +170,7 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
                 countLife++;
             }
         }
-        
+
         return countLife;
     }
 
@@ -168,5 +184,14 @@ public class LifeGameManager : MonoBehaviour, IPointerClickHandler
 
         if (obj.TryGetComponent<Cell>(out Cell cell))
             cell.CellType = CellType.life;
+    }
+
+    IEnumerator UpdateCell()
+    {
+        while (_isStart)
+        {
+            yield return new WaitForSeconds(_changeSpeed);
+            ChangeCell();
+        }
     }
 }
